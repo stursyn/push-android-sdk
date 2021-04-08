@@ -46,11 +46,11 @@ public class DevinoSdk {
         String key, applicationId;
         FirebaseInstanceId firebaseInstanceId;
 
-        public Builder(Context ctx, String key, String applicationId, FirebaseInstanceId firebaseInstanceId) {
+        public Builder(Context ctx, String key, String applicationId) {
             this.ctx = ctx;
             this.key = key;
             this.applicationId = applicationId;
-            this.firebaseInstanceId = firebaseInstanceId;
+            this.firebaseInstanceId = FirebaseInstanceId.getInstance();
             instance = new DevinoSdk();
         }
 

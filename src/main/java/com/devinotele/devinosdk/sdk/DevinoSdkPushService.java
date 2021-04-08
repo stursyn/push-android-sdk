@@ -42,9 +42,9 @@ public class DevinoSdkPushService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
         if (remoteMessage.getData().size() > 0) {
-
             Map<String, String> data = remoteMessage.getData();
 
+            System.out.println("DEVINO_SDK_PUSH_REMOTE_MESSAGE:" + data);
             String pushId = data.get("pushId");
 
             if (pushId == null) return;
@@ -55,6 +55,8 @@ public class DevinoSdkPushService extends FirebaseMessagingService {
             String body = data.get("body");
             String action = data.get("action");
             String buttonsJson = data.get("buttons");
+            String options = data.get("options");
+
             Type listType = new TypeToken<List<PushButton>>() {
             }.getType();
             List<PushButton> buttons = gson.fromJson(buttonsJson, listType);
@@ -63,7 +65,8 @@ public class DevinoSdkPushService extends FirebaseMessagingService {
 
             boolean isSilent = "true".equalsIgnoreCase(data.get("silentPush"));
             if (!isSilent) {
-                showSimpleNotification(title, body, icon, image, buttons, true, sound, pushId, action);
+                showSimpleNotification(title, body, icon, image, buttons,
+                        true, sound, pushId, action, options);
             }
 
             DevinoSdk.getInstance().pushEvent(pushId, DevinoSdk.PushStatus.DELIVERED, null);
@@ -71,10 +74,14 @@ public class DevinoSdkPushService extends FirebaseMessagingService {
 
     }
 
-    public void showSimpleNotification(String title, String text, String smallIcon, String largeIcon, List<PushButton> buttons, Boolean bigPicture, Uri sound, String pushId, String action) {
+    public void showSimpleNotification(String title, String text, String smallIcon, String largeIcon,
+                                       List<PushButton> buttons, Boolean bigPicture,
+                                       Uri sound, String pushId, String action, String options) {
 
         Intent broadcastIntent = new Intent(getApplicationContext(), DevinoPushReceiver.class);
         broadcastIntent.putExtra(DevinoPushReceiver.KEY_PUSH_ID, pushId);
+        broadcastIntent.putExtra(DevinoPushReceiver.KEY_OPTIONS, options);
+
         if (action != null) {
             broadcastIntent.putExtra(DevinoPushReceiver.KEY_DEEPLINK, action);
         } else
@@ -167,7 +174,7 @@ public class DevinoSdkPushService extends FirebaseMessagingService {
         }
     }
 
-    protected class PushButton {
+    public class PushButton {
 
         @SerializedName("text")
         private String text;
